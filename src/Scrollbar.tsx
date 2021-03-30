@@ -313,6 +313,8 @@ export default class Scrollbar extends React.Component<ScrollbarProps, Scrollbar
 
   public static calculateStyles(props: ScrollbarProps, state: ScrollbarState, scrollValues, scrollbarWidth: number) {
     const useDefaultStyles = !props.noDefaultStyles;
+    const shouldScrollY = props.permanentTracks || props.permanentTrackY || scrollValues.scrollYPossible;
+    const shouldScrollX = props.permanentTracks || props.permanentTrackX || scrollValues.scrollXPossible;
 
     return {
       holder: {
@@ -364,10 +366,10 @@ export default class Scrollbar extends React.Component<ScrollbarProps, Scrollbar
         bottom: 0,
         right: 0,
 
-        paddingBottom: !scrollbarWidth && scrollValues.scrollXPossible ? props.fallbackScrollbarWidth : undefined,
+        paddingBottom: !scrollbarWidth && shouldScrollX ? props.fallbackScrollbarWidth : undefined,
 
         [state.isRTL ? "paddingLeft" : "paddingRight"]:
-          !scrollbarWidth && scrollValues.scrollYPossible ? props.fallbackScrollbarWidth : undefined,
+          !scrollbarWidth && shouldScrollY ? props.fallbackScrollbarWidth : undefined,
 
         ...props.scrollerProps!.style,
 
@@ -377,13 +379,13 @@ export default class Scrollbar extends React.Component<ScrollbarProps, Scrollbar
 
         ...(props.momentum && { WebkitOverflowScrolling: "touch" }),
 
-        overflowY: scrollValues.scrollYPossible ? "scroll" : "hidden",
-        overflowX: scrollValues.scrollXPossible ? "scroll" : "hidden",
+        overflowY: shouldScrollY ? "scroll" : "hidden",
+        overflowX: shouldScrollX ? "scroll" : "hidden",
 
-        marginBottom: scrollValues.scrollXPossible
+        marginBottom: shouldScrollX
           ? -(scrollbarWidth || props.fallbackScrollbarWidth!) - Number(scrollValues.zoomLevel !== 1)
           : undefined,
-        [state.isRTL ? "marginLeft" : "marginRight"]: scrollValues.scrollYPossible
+        [state.isRTL ? "marginLeft" : "marginRight"]: shouldScrollY
           ? -(scrollbarWidth || props.fallbackScrollbarWidth!) - Number(scrollValues.zoomLevel !== 1)
           : undefined,
       } as React.CSSProperties,
@@ -745,12 +747,6 @@ export default class Scrollbar extends React.Component<ScrollbarProps, Scrollbar
     (props.native ? this.updaterNative : this.updaterCustom)(bitmask, scrollState);
 
     this.scrollValues = scrollState;
-
-    // Check if the status of whether scrolling is possible has changed, and if it has force a re-render. This handles
-    // the condition of permanentTracks enabled because otherwise we're depending on trackVisibility changing to trigger a re-render.
-    if (bitmask & (1 << 8) || bitmask & (1 << 9)) {
-      this.forceUpdate();
-    }
 
     if (!props.native && bitmask & (1 << 15)) {
       util.getScrollbarWidth(true);
