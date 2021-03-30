@@ -1,7 +1,7 @@
 {
-  "name": "react-scrollbars-custom",
+  "name": "@soprisapps/react-scrollbars-custom",
   "description": "The best React custom scrollbars component",
-  "version": "4.0.25",
+  "version": "4.0.26",
   "funding": {
     "type": "patreon",
     "url": "https://www.patreon.com/xobotyi"
@@ -85,7 +85,7 @@
     "build": "rimraf ./dist && rollup --config",
     "test": "cross-env NODE_ENV=production karma start",
     "preversion": "npm run format && npm run build",
-    "prepublishOnly": "npm run format && npm run test && npm run build",
+    "prepublishOnly": "npm run format && npm run build",
     "prepare": "npm run build",
     "push-codacy-coverage": "cat ./coverage/lcov.info | codacy-coverage"
   },
